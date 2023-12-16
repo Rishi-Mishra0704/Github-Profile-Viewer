@@ -32,19 +32,23 @@ class GitHubProfileViewer
     puts "Public Repositories: #{user_data['public_repos']}"
     puts "Followers: #{user_data['followers']}"
     puts "Following: #{user_data['following']}"
-    puts "Created at: #{user_data['created_at']}"
+    puts "Created at: #{format_date(user_data['created_at'])}"
+  end
+  def format_date(date_string)
+    date_time = DateTime.parse(date_string)
+
+    date_time.strftime("%d-%m-%Y")
   end
 end
 
-# Accept GitHub username from the command line
-username = ARGV[0]
+puts "Please Enter Your GitHub Username:"
+username = gets.chomp
 
-# Check if the username is provided
-if username.nil?
-  puts "Usage: ruby github_profile_viewer.rb <github_username>"
+
+if username.empty?
+  puts "Username cannot be empty. Exiting."
   exit 1
 end
 
-# Create GitHubProfileViewer instance and fetch the profile
 viewer = GitHubProfileViewer.new(username)
 viewer.fetch_profile
