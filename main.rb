@@ -61,15 +61,38 @@ class GitHubProfileViewer
     end
   end
   
+
   def display_repositories(repositories)
-    puts "Repositories for #{@username}:"
-    repositories.each do |repo|
-      puts "Name: #{repo['name']}"
-      puts "Description: #{repo['description'] || 'Not provided'}"
-      puts "Stars: #{repo['stargazers_count']}"
-      puts "--------------------------"
+    puts "Latest 3 Repositories for #{@username}:"
+  
+    languages_to_display = ['python', 'typescript', 'ipynb', 'ruby', 'javascript', 'c++']
+  
+    languages_to_display.each do |language|
+      puts "----- #{language.capitalize} -----"
+      
+      # Filter repositories by language
+      language_repositories = repositories.select { |repo| repo['language'].to_s.downcase == language }
+  
+      # Sort repositories by created_at in descending order
+      sorted_repositories = language_repositories.sort_by { |repo| DateTime.parse(repo['created_at']) }.reverse
+  
+      # Display latest 3 repositories or all if less than 3
+      latest_3_repositories = sorted_repositories.take(3)
+  
+      if latest_3_repositories.empty?
+        puts "No repositories for #{language.capitalize}"
+      else
+        latest_3_repositories.each do |repo|
+          puts "Name: #{repo['name']}"
+          puts "Description: #{repo['description'] || 'Not provided'}"
+          puts "Created at: #{format_date(repo['created_at'])}"
+          puts "--------------------------"
+        end
+      end
     end
   end
+  
+
 end
 
 puts "Please Enter Your GitHub Username:"
