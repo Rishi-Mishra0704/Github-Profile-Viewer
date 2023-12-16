@@ -13,6 +13,11 @@ class GitHubProfileViewer
     parse_response(response)
   end
 
+   def fetch_profile_and_repositories
+    fetch_profile
+    fetch_repositories
+  end
+
   private
 
   def parse_response(response)
@@ -34,10 +39,36 @@ class GitHubProfileViewer
     puts "Following: #{user_data['following']}"
     puts "Created at: #{format_date(user_data['created_at'])}"
   end
+
   def format_date(date_string)
     date_time = DateTime.parse(date_string)
 
     date_time.strftime("%d-%m-%Y")
+  end
+  def fetch_repositories
+    response = self.class.get("/users/#{@username}/repos")
+    parse_repositories(response)
+  end
+  
+  private
+  
+  def parse_repositories(response)
+    if response.success?
+      repositories = JSON.parse(response.body)
+      display_repositories(repositories)
+    else
+      puts "Error fetching repositories: #{response.code} - #{response.message}"
+    end
+  end
+  
+  def display_repositories(repositories)
+    puts "Repositories for #{@username}:"
+    repositories.each do |repo|
+      puts "Name: #{repo['name']}"
+      puts "Description: #{repo['description'] || 'Not provided'}"
+      puts "Stars: #{repo['stargazers_count']}"
+      puts "--------------------------"
+    end
   end
 end
 
@@ -51,4 +82,4 @@ if username.empty?
 end
 
 viewer = GitHubProfileViewer.new(username)
-viewer.fetch_profile
+viewer.fetch_profile_and_repositories
